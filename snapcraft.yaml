@@ -1,0 +1,36 @@
+name: sqlmap0
+contact: ineffablesensei@gmail.com
+Add .gitignore
+.gitignore tells git which files not to track. About ignoring files
+version: '1.0'
+base: core22
+summary: Automatic SQL injection tool
+description: |
+  sqlmap is an open source penetration testing tool that automates
+  the process of detecting and exploiting SQL injection flaws.
+
+license: GPL-2.0
+grade: stable
+confinement: strict
+
+apps:
+  sqlmap:
+    command: bin/sqlmap
+    plugs:
+      - network
+      - home
+
+parts:
+  sqlmap:
+    plugin: dump
+    source: https://github.com/sqlmapproject/sqlmap.git
+    override-build: |
+      craftctl default
+      sed -i '1s|python$|python3|' $CRAFT_PART_INSTALL/sqlmap.py
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      echo '#!/bin/sh' > $CRAFT_PART_INSTALL/bin/sqlmap
+      echo 'cd $SNAP && exec python3 sqlmap.py "$@"' >> $CRAFT_PART_INSTALL/bin/sqlmap
+      chmod +x $CRAFT_PART_INSTALL/bin/sqlmap
+    stage-packages:
+      - python3
+      - libmagic1
